@@ -1,0 +1,35 @@
+﻿<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:amq="http://activemq.apache.org/schema/core"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+	<description>Spring消息队列配置</description>
+	<bean id="jmsFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL">
+			<value>tcp://192.168.70.89:61616</value>
+		</property>
+		<property name="userName">
+			<value>ikongjian</value>
+		</property>
+		<property name="password">
+			<value>ikongjian123</value>
+		</property>
+	</bean>
+	<bean id="pooledJmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+          <property name="connectionFactory" ref="jmsFactory"/>
+    </bean>
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+          <property name="connectionFactory" ref="pooledJmsFactory" />
+    </bean>
+
+    <bean id="txtDestination" class="org.apache.activemq.command.ActiveMQQueue">
+          <constructor-arg index="0" value="test.queue"/>
+    </bean>
+    <bean id="txtMsgListener" class="com.my.activemq.test.ServerListener"/>
+    <bean id="txtMsgContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+            <property name="connectionFactory" ref="pooledJmsFactory" />
+            <property name="destination" ref="txtDestination" />
+            <property name="messageListener" ref="txtMsgListener" />
+    </bean>
+</beans>
